@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aplikasi Keuangan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-teal-600 text-white p-4 space-y-4 hidden md:block">
+    <h1 class="text-2xl font-bold">KeuanganKu</h1>
+    <nav class="space-y-2">
+      <a href="#" class="block py-2 px-3 rounded hover:bg-teal-700">Dashboard</a>
+      <a href="#" class="block py-2 px-3 rounded hover:bg-teal-700">Akun</a>
+      <a href="#" class="block py-2 px-3 rounded hover:bg-teal-700">Transaksi</a>
+      <a href="#" class="block py-2 px-3 rounded hover:bg-teal-700">Laporan</a>
+      <a href="#" class="block py-2 px-3 rounded hover:bg-teal-700">Export</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 p-6 space-y-6">
+    <!-- Header -->
+    <header class="flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Dashboard</h2>
+      <button class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Tambah Transaksi</button>
+    </header>
+
+    <!-- Cards ringkasan -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="p-4 bg-white rounded-2xl shadow">
+        <p class="text-sm text-slate-500">Total Aset</p>
+        <p class="text-2xl font-semibold" id="totalAset">Rp 0</p>
+      </div>
+      <div class="p-4 bg-white rounded-2xl shadow">
+        <p class="text-sm text-slate-500">Total Kewajiban</p>
+        <p class="text-2xl font-semibold" id="totalKewajiban">Rp 0</p>
+      </div>
+      <div class="p-4 bg-white rounded-2xl shadow">
+        <p class="text-sm text-slate-500">Pendapatan</p>
+        <p class="text-2xl font-semibold text-green-600" id="totalPendapatan">Rp 0</p>
+      </div>
+      <div class="p-4 bg-white rounded-2xl shadow">
+        <p class="text-sm text-slate-500">Beban</p>
+        <p class="text-2xl font-semibold text-red-600" id="totalBeban">Rp 0</p>
+      </div>
+    </section>
+
+    <!-- Tabel transaksi -->
+    <section class="bg-white p-4 rounded-2xl shadow">
+      <h3 class="text-lg font-semibold mb-4">Daftar Transaksi</h3>
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium">Tanggal</th>
+            <th class="px-4 py-3 text-left text-sm font-medium">Akun</th>
+            <th class="px-4 py-3 text-left text-sm font-medium">Deskripsi</th>
+            <th class="px-4 py-3 text-right text-sm font-medium">Debit</th>
+            <th class="px-4 py-3 text-right text-sm font-medium">Kredit</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-100" id="transactionTable">
+          <!-- Row transaksi dari script.js -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Script terpisah -->
+  <script src="script/index.js"></script>
+</body>
+</html>
