@@ -1,0 +1,1 @@
+Website keuangan sudah memiliki halaman utama dengan sidebar navigasi (Dashboard, Transaksi, Laporan) dan tampilan ringkasan keuangan. Script JavaScript berhasil menampilkan data transaksi dummy dalam tabel, serta menghitung total aset, pendapatan, dan beban secara otomatis.
