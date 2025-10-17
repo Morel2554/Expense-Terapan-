@@ -22,3 +22,16 @@ Akan menghubungkan script.js ke API menggunakan fetch() agar data real-time.
 Implementasi login & register user.
 Menyambungkan frontend ke backend sepenuhnya.
 Menambahkan fitur export ke Excel.
+
+
+
+
+13 Oct 2025 - 17 Oct 2025
+1. Pekerjaan yang telah dilakukan:
+Tim telah menambahkan fitur keamanan berupa key unik agar setiap pengguna memiliki kode khusus untuk berbagi neraca keuangannya. Pengguna bisa menambah transaksi dan melihat neracanya sendiri, serta dapat mengakses neraca pengguna lain hanya jika mengetahui key tersebut. Database juga diperbarui dengan kolom view_key untuk menyimpan kode unik tiap user.
+
+2. Kendala yang ditemui:
+Terjadi kesulitan dalam menghubungkan data antar pengguna saat menggunakan key unik dan dalam memastikan keamanan agar user lain tidak bisa melihat data tanpa izin.
+
+3. Cara mengatasi kendala:
+Tim menambahkan sistem validasi key pada backend dan menyesuaikan logika tampilan di frontend agar hanya menampilkan data jika key cocok. Setelah diuji, fitur berbagi neraca dengan key berjalan baik dan aman.
