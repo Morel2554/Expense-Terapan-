@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tambah Neraca Saldo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+
+  <!-- Navbar -->
+  <header class="bg-blue-700 text-white py-4 shadow mb-6">
+    <div class="container mx-auto flex justify-between items-center px-6">
+      <h1 class="text-2xl font-bold">
+        <a href="index.html" class="hover:underline">Laporan Keuangan</a>
+      </h1>
+      <nav id="nav-links" class="space-x-4">
+        <!-- Diisi oleh JS -->
+      </nav>
+    </div>
+  </header>
+
+  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Tambah Neraca Saldo</h2>
+    <form id="neracaForm" class="space-y-4">
+      <div>
+        <label class="block text-gray-700 font-semibold">Nama Akun</label>
+        <input type="text" id="akun" required class="w-full border p-2 rounded focus:ring focus:ring-blue-300">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-gray-700 font-semibold">Debit</label>
+          <input type="number" id="debit" step="0.01" value="0" required class="w-full border p-2 rounded focus:ring focus:ring-blue-300">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold">Kredit</label>
+          <input type="number" id="kredit" step="0.01" value="0" required class="w-full border p-2 rounded focus:ring focus:ring-blue-300">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-semibold">Tanggal</label>
+        <input type="date" id="tanggal" required class="w-full border p-2 rounded focus:ring focus:ring-blue-300">
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-semibold">Keterangan</label>
+        <textarea id="keterangan" rows="3" class="w-full border p-2 rounded focus:ring focus:ring-blue-300"></textarea>
+      </div>
+
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
+      <p id="msg" class="text-sm mt-2 hidden"></p>
+    </form>
+  </div>
+
+  <script>
+    // Navbar dinamis
+    fetch('/session')
+      .then(res => res.json())
+      .then(data => {
+        const nav = document.getElementById('nav-links');
+        if (data.user) {
+          nav.innerHTML = `
+            <span>Hai, <strong>${data.user.username}</strong></span>
+            <a href="profile.html" class="hover:underline">Profil</a>
+            <a href="admin.html" class="hover:underline">Kelola Akun</a>
+            <a href="tambah_neracasaldo.html" class="hover:underline font-semibold text-yellow-200">Tambah Neraca</a>
+            <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+          `;
+        } else {
+          nav.innerHTML = `<a href="login.html" class="hover:underline">Login</a>`;
+        }
+      });
+
+    function logout() {
+      fetch('/logout', { method: 'POST' }).then(() => location.href = 'login.html');
+    }
+
+    // Submit form
+    document.getElementById('neracaForm').addEventListener('submit', e => {
+      e.preventDefault();
+
+      const data = {
+        akun: document.getElementById('akun').value,
+        debit: document.getElementById('debit').value,
+        kredit: document.getElementById('kredit').value,
+        tanggal: document.getElementById('tanggal').value,
+        keterangan: document.getElementById('keterangan').value,
+      };
+
+      fetch('/api/neracasaldo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(result => {
+        const msg = document.getElementById('msg');
+        msg.classList.remove('hidden');
+        msg.textContent = result.message;
+        msg.className = result.success ? 'text-green-600' : 'text-red-600';
+        if (result.success) document.getElementById('neracaForm').reset();
+      });
+    });
+  </script>
+</body>
+</html>

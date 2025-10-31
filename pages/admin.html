@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Manage Members</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4 text-center">Admin Panel - Manage Members</h1>
+
+    <!-- Form Tambah Member -->
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-2">Tambah Member Baru</h2>
+      <form id="addMemberForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" id="username" placeholder="Username" class="p-2 border rounded" required>
+        <input type="email" id="email" placeholder="Email" class="p-2 border rounded" required>
+        <input type="password" id="password" placeholder="Password" class="p-2 border rounded" required>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded col-span-1 md:col-span-2">
+          Tambah Member
+        </button>
+      </form>
+    </div>
+
+    <!-- Daftar Member -->
+    <div class="bg-white p-4 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4">Daftar Member</h2>
+      <table class="w-full border-collapse border">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border p-2">ID</th>
+            <th class="border p-2">Username</th>
+            <th class="border p-2">Email</th>
+            <th class="border p-2">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="memberTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Ambil semua member
+    async function loadMembers() {
+      const res = await fetch('/api/members');
+      const members = await res.json();
+      const tbody = document.getElementById('memberTableBody');
+      tbody.innerHTML = '';
+
+      members.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border p-2 text-center">${m.id}</td>
+          <td class="border p-2">${m.username}</td>
+          <td class="border p-2">${m.email}</td>
+          <td class="border p-2 text-center space-x-2">
+            <button onclick="editMember(${m.id}, '${m.username}', '${m.email}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">Edit</button>
+            <button onclick="deleteMember(${m.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Tambah member baru
+    document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/api/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      if (res.ok) {
+        alert('Member berhasil ditambahkan!');
+        e.target.reset();
+        loadMembers();
+      } else {
+        alert('Gagal menambahkan member.');
+      }
+    });
+
+    // Edit member
+    async function editMember(id, username, email) {
+      const newUsername = prompt('Ubah username:', username);
+      const newEmail = prompt('Ubah email:', email);
+      if (!newUsername || !newEmail) return;
+
+      const res = await fetch(`/api/members/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername, email: newEmail })
+      });
+
+      if (res.ok) {
+        alert('Data member diperbarui.');
+        loadMembers();
+      } else {
+        alert('Gagal memperbarui data.');
+      }
+    }
+
+    // Hapus member
+    async function deleteMember(id) {
+      if (!confirm('Yakin ingin menghapus member ini?')) return;
+
+      const res = await fetch(`/api/members/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Member dihapus.');
+        loadMembers();
+      } else {
+        alert('Gagal menghapus member.');
+      }
+    }
+
+    loadMembers();
+  </script>
+</body>
+</html>

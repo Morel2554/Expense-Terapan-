@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Neraca Saldo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+  <!-- Navbar -->
+  <header class="bg-blue-700 text-white py-4 shadow mb-6">
+    <div class="container mx-auto flex justify-between items-center px-6">
+      <h1 class="text-2xl font-bold">
+        <a href="index.html" class="hover:underline">Portal Keuangan</a>
+      </h1>
+      <nav class="space-x-4" id="nav-links"></nav>
+    </div>
+  </header>
+
+  <!-- Konten -->
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-3xl font-bold mb-4" id="neracaName">Detail Neraca</h1>
+    <p><strong>Tanggal Dibuat:</strong> <span id="neracaDate"></span></p>
+    <p><strong>Pemilik:</strong> <span id="neracaOwner"></span></p>
+    <p><strong>Total Saldo:</strong> Rp <span id="neracaTotal"></span></p>
+    <p><strong>Kunci Akses:</strong> <code id="neracaKey" class="bg-gray-100 px-2 py-1 rounded"></code></p>
+
+    <div class="mt-6 border-t pt-4">
+      <h2 class="text-2xl font-semibold mb-2">Catatan Transaksi</h2>
+      <div id="transaksiList" class="space-y-3"></div>
+    </div>
+
+    <div class="mt-8" id="aksiSection">
+      <!-- Tombol edit dan hapus hanya untuk pemilik -->
+    </div>
+  </div>
+
+  <script>
+    // Navbar dinamis
+    fetch('/session')
+      .then(res => res.json())
+      .then(data => {
+        const nav = document.getElementById('nav-links');
+        if (data.user) {
+          nav.innerHTML = `
+            <span class="mr-4">Hai, <strong>${data.user.username}</strong></span>
+            <a href="profile.html" class="hover:underline">Profil</a>
+            <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+          `;
+        } else {
+          nav.innerHTML = `
+            <a href="login.html" class="hover:underline">Login</a>
+            <a href="register.html" class="hover:underline">Daftar</a>
+          `;
+        }
+      });
+
+    function logout() {
+      fetch('/logout', { method: 'POST' })
+        .then(() => location.href = 'index.html');
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const neracaId = params.get('id');
+
+    // Ambil detail neraca
+    fetch(`/api/neraca/${neracaId}`)
+      .then(res => res.json())
+      .then(n => {
+        document.getElementById('neracaName').textContent = n.nama_neraca;
+        document.getElementById('neracaDate').textContent = n.tanggal_dibuat;
+        document.getElementById('neracaOwner').textContent = n.pemilik || 'Tidak diketahui';
+        document.getElementById('neracaTotal').textContent = parseInt(n.total_saldo || 0).toLocaleString();
+        document.getElementById('neracaKey').textContent = n.key_akses || '-';
+
+        // Tampilkan transaksi
+        const list = document.getElementById('transaksiList');
+        if (!n.transaksi || n.transaksi.length === 0) {
+          list.innerHTML = `<p class="text-gray-500">Belum ada transaksi pada neraca ini.</p>`;
+        } else {
+          list.innerHTML = n.transaksi.map(t => `
+            <div class="border p-3 rounded bg-gray-50 text-sm">
+              <p><strong>${t.tanggal}</strong> — ${t.keterangan}</p>
+              <p class="text-green-700">+ Rp ${parseInt(t.debit || 0).toLocaleString()}</p>
+              <p class="text-red-700">- Rp ${parseInt(t.kredit || 0).toLocaleString()}</p>
+            </div>
+          `).join('');
+        }
+
+        // Tampilkan tombol aksi hanya jika user = pemilik
+        fetch('/session')
+          .then(res => res.json())
+          .then(sess => {
+            if (sess.user && sess.user.username === n.pemilik_username) {
+              document.getElementById('aksiSection').innerHTML = `
+                <button onclick="editNeraca(${n.id})" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Edit</button>
+                <button onclick="hapusNeraca(${n.id})" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Hapus</button>
+              `;
+            }
+          });
+      })
+      .catch(err => {
+        console.error('Error load neraca:', err);
+        document.querySelector('.max-w-3xl').innerHTML = `<p class="text-red-500 text-center">Gagal memuat detail neraca.</p>`;
+      });
+
+    function editNeraca(id) {
+      location.href = `edit_neraca.html?id=${id}`;
+    }
+
+    function hapusNeraca(id) {
+      if (!confirm('Yakin ingin menghapus neraca ini?')) return;
+      fetch(`/api/neraca/${id}`, { method: 'DELETE' })
+        .then(() => location.href = 'event_list.html'); // kembali ke daftar neraca
+    }
+  </script>
+</body>
+</html>

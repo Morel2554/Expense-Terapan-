@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daftar Neraca Saldo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+  <header class="bg-blue-700 text-white py-4 shadow">
+    <div class="container mx-auto flex justify-between items-center px-6">
+      <h1 class="text-2xl font-bold">
+        <a href="index.html" class="hover:underline">ExpenseTracker</a>
+      </h1>
+      <nav class="space-x-4" id="nav-links"></nav>
+    </div>
+  </header>
+
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Daftar Neraca Saldo</h1>
+      <button id="btnTambah" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden">
+        + Tambah Neraca
+      </button>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="neracaContainer">
+      <!-- Data neraca dinamis akan muncul di sini -->
+    </div>
+  </div>
+
+  <script>
+    // Navbar dinamis
+    fetch('/session')
+      .then(res => res.json())
+      .then(data => {
+        const nav = document.getElementById('nav-links');
+        const btnTambah = document.getElementById('btnTambah');
+
+        if (data.user) {
+          const user = data.user;
+          nav.innerHTML = `
+            <span class="mr-4">Hai, <strong>${user.username}</strong></span>
+            <a href="profile.html" class="hover:underline">Profil</a>
+            <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+          `;
+
+          if (user.role === 'member') {
+            btnTambah.classList.remove('hidden');
+            btnTambah.onclick = () => location.href = 'tambah_neracasaldo.html';
+          }
+        } else {
+          nav.innerHTML = `
+            <a href="login.html" class="hover:underline">Login</a>
+            <a href="register.html" class="hover:underline">Daftar</a>
+          `;
+        }
+      });
+
+    function logout() {
+      fetch('/logout', { method: 'POST' })
+        .then(() => location.href = 'index.html');
+    }
+
+    // Ambil daftar neraca
+    fetch('/api/neraca')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('neracaContainer');
+        if (data.length === 0) {
+          container.innerHTML = `<p class="text-center text-gray-500 col-span-full">Belum ada neraca saldo.</p>`;
+          return;
+        }
+
+        container.innerHTML = data.map(n => `
+          <div class="bg-white p-5 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-2">${n.nama_neraca}</h2>
+            <p class="text-sm text-gray-500 mb-1">Tanggal dibuat: ${n.tanggal_dibuat}</p>
+            <p class="text-sm text-gray-700 mb-2">Total saldo: Rp ${parseInt(n.total_saldo || 0).toLocaleString()}</p>
+            <a href="detail_neraca.html?id=${n.id}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Lihat Detail</a>
+          </div>
+        `).join('');
+      })
+      .catch(err => {
+        console.error('Error load neraca:', err);
+        document.getElementById('neracaContainer').innerHTML = `<p class="text-center text-red-500 col-span-full">Gagal memuat neraca.</p>`;
+      });
+  </script>
+</body>
+</html>
