@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neraca Lajur (Offline Mode)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+  <div class="max-w-7xl mx-auto mt-10 bg-white rounded-xl shadow p-6">
+
+    <h1 class="text-2xl font-bold mb-4">Neraca Lajur (Test)</h1>
+
+    <button onclick="addRow()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">
+      Tambah Baris
+    </button>
+
+    <!-- TABLE -->
+    <div class="overflow-x-auto">
+      <table class="w-full border text-sm" id="neracaTable">
+        <thead class="bg-gray-200 text-center">
+          <tr>
+            <th class="border p-2">No Akun</th>
+            <th class="border p-2">Nama Akun</th>
+
+            <th class="border p-2">NS Debit</th>
+            <th class="border p-2">NS Kredit</th>
+
+            <th class="border p-2">JP Debit</th>
+            <th class="border p-2">JP Kredit</th>
+
+            <th class="border p-2">NSD Debit</th>
+            <th class="border p-2">NSD Kredit</th>
+
+            <th class="border p-2">LR Debit</th>
+            <th class="border p-2">LR Kredit</th>
+
+            <th class="border p-2">NRC Debit</th>
+            <th class="border p-2">NRC Kredit</th>
+
+            <th class="border p-2">Catatan</th>
+            <th class="border p-2 w-24">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="neracaBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+<script src="neraca_lajur.js"></script>
+</body>
+<script>
+function loadData() {
+  fetch("/api/neraca")
+    .then(res => res.json())
+    .then(data => {
+      const body = document.getElementById("neracaBody");
+      body.innerHTML = "";
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="border p-1"><input class="w-full" value="${row.no_akun}" data-id="${row.id}" data-field="no_akun"></td>
+          <td class="border p-1"><input class="w-full" value="${row.nama_akun}" data-id="${row.id}" data-field="nama_akun"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.ns_debit}" data-id="${row.id}" data-field="ns_debit"></td>
+          <td class="border p-1"><input class="w-full" value="${row.ns_kredit}" data-id="${row.id}" data-field="ns_kredit"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.jp_debit}" data-id="${row.id}" data-field="jp_debit"></td>
+          <td class="border p-1"><input class="w-full" value="${row.jp_kredit}" data-id="${row.id}" data-field="jp_kredit"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.nsd_debit}" data-id="${row.id}" data-field="nsd_debit"></td>
+          <td class="border p-1"><input class="w-full" value="${row.nsd_kredit}" data-id="${row.id}" data-field="nsd_kredit"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.lr_debit}" data-id="${row.id}" data-field="lr_debit"></td>
+          <td class="border p-1"><input class="w-full" value="${row.lr_kredit}" data-id="${row.id}" data-field="lr_kredit"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.nrc_debit}" data-id="${row.id}" data-field="nrc_debit"></td>
+          <td class="border p-1"><input class="w-full" value="${row.nrc_kredit}" data-id="${row.id}" data-field="nrc_kredit"></td>
+
+          <td class="border p-1"><input class="w-full" value="${row.catatan}" data-id="${row.id}" data-field="catatan"></td>
+
+          <td class="border p-1 text-center">
+            <button onclick="saveRow(${row.id})" class="px-2 py-1 bg-green-600 text-white rounded">Save</button>
+            <button onclick="deleteRow(${row.id})" class="px-2 py-1 bg-red-600 text-white rounded ml-1">Hapus</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    });
+}
+
+async function saveRow(id) {
+  const inputs = document.querySelectorAll(`[data-id="${id}"]`);
+
+  let payload = {};
+  inputs.forEach(i => {
+    payload[i.dataset.field] = i.value;
+  });
+
+  await fetch(`/api/neraca/${id}`, {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+
+  loadData();
+}
+
+function deleteRow(id) {
+  fetch(`/api/neraca/${id}`, { method: "DELETE" })
+    .then(() => loadData());
+}
+
+function addRow() {
+  const newData = {
+    no_akun: "",
+    nama_akun: "",
+    ns_debit: 0,
+    ns_kredit: 0,
+    jp_debit: 0,
+    jp_kredit: 0,
+    nsd_debit: 0,
+    nsd_kredit: 0,
+    lr_debit: 0,
+    lr_kredit: 0,
+    nrc_debit: 0,
+    nrc_kredit: 0,
+    catatan: ""
+  };
+
+  fetch("/api/neraca", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(newData)
+  }).then(() => loadData());
+}
+
+window.onload = loadData;
+</script>
+
+</html>
