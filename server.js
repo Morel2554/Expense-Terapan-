@@ -7,7 +7,7 @@ const path = require('path');
 const app = express();
 const port = 8000;
 
-// Middleware
+// Middleware untuk Key Neraca Belum Kerja
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'pages')));
@@ -15,7 +15,7 @@ app.use(session({
   secret: 'keuangan_secret_key',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 3600000 } // 1 jam
+  cookie: { maxAge: 3600000 }
 }));
 
 // Koneksi database
@@ -34,7 +34,7 @@ db.connect((err) => {
   console.log('✅ Berhasil konek ke database MySQL');
 });
 
-// ===== Middleware =====
+// ===== Middleware ===== Login
 function requireLogin(req, res, next) {
   if (!req.session.user) return res.status(401).send('Silakan login dahulu.');
   next();
@@ -167,9 +167,9 @@ app.post('/logout', (req, res) => {
   });
 });
 
-// ===== CRUD NERACA (Admin) =====
+// ===== CRUD NERACA (Admin) ===== Belum Kerja
 
-// Tampilkan semua data neraca
+// Tampilkan semua data neraca ===== Belum Kerja
 app.get('/api/neraca', requireLogin, (req, res) => {
   const sql = `SELECT * FROM neraca ORDER BY tanggal DESC`;
   db.query(sql, (err, results) => {
@@ -216,7 +216,7 @@ app.delete('/api/neraca/:id', requireLogin, checkRole(['administrator']), (req, 
   });
 });
 
-// ===== LAPORAN KEUANGAN =====
+// ===== LAPORAN KEUANGAN ===== Belum Kerja
 
 // Simpan laporan transaksi (oleh member)
 app.post('/api/laporan', requireLogin, checkRole(['member']), (req, res) => {
@@ -248,7 +248,7 @@ app.get('/api/laporan', requireLogin, (req, res) => {
   });
 });
 
-// ===== KEYS (riwayat transaksi verifikasi) =====
+// ===== KEYS (riwayat transaksi verifikasi) ===== Belum Kerja
 app.get('/api/keys', requireLogin, (req, res) => {
   const sql = `SELECT * FROM keys ORDER BY created_at DESC`;
   db.query(sql, (err, results) => {
@@ -256,6 +256,7 @@ app.get('/api/keys', requireLogin, (req, res) => {
     res.json(results);
   });
 });
+
 // Neraca Saldo
 
 app.post('/api/neracasaldo', (req, res) => {
@@ -269,6 +270,36 @@ app.post('/api/neracasaldo', (req, res) => {
     res.json({ success: true, message: 'Data neraca saldo berhasil disimpan' });
   });
 });
+
+// Neraca Lajur
+app.get('/neraca_lajur.html', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'neraca_lajur.html'));
+});
+
+// Update neraca saldo
+app.put('/api/neracasaldo/:id', (req, res) => {
+  const { akun, debit, kredit, tanggal, keterangan } = req.body;
+  const sql = `UPDATE neracasaldo 
+               SET akun=?, debit=?, kredit=?, tanggal=?, keterangan=?
+               WHERE id=?`;
+
+  db.query(sql, [akun, debit, kredit, tanggal, keterangan, req.params.id], (err) => {
+    if (err) return res.json({ success: false, message: "Gagal update data" });
+    res.json({ success: true, message: "Data berhasil diperbarui" });
+  });
+});
+
+// Delete neraca saldo
+app.delete('/api/neracasaldo/:id', (req, res) => {
+  const sql = `DELETE FROM neracasaldo WHERE id=?`;
+  db.query(sql, [req.params.id], (err) => {
+    if (err) return res.json({ success: false, message: "Gagal hapus data" });
+    res.json({ success: true, message: "Data berhasil dihapus" });
+  });
+});
+
+
+
 
 // ===== SERVER RUN =====
 app.listen(port, () => {
