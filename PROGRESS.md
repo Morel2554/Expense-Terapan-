@@ -35,3 +35,7 @@ Terjadi kesulitan dalam menghubungkan data antar pengguna saat menggunakan key u
 
 3. Cara mengatasi kendala:
 Menambahkan sistem validasi key pada backend dan menyesuaikan logika tampilan di frontend agar hanya menampilkan data jika key cocok. Setelah diuji, fitur berbagi neraca dengan key berjalan baik dan aman.
+
+
+November 2025
+Penyederhanaan dengan menghilangkan package cors agar alur permintaan lebih sederhana, dan saat ini sedang dibuat tabel neraca lajur yang dapat diedit langsung di halaman sehingga pengguna bisa memperbarui data secara real-time tanpa perlu membuka formulir atau halaman tambahan.
