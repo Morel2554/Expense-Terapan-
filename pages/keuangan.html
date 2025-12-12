@@ -55,7 +55,6 @@
       fetch('/logout', { method: 'POST' })
         .then(() => location.href = 'index.html');
     }
-
     function loadData() {
       fetch('/api/daftar-member')
         .then(res => res.json())

@@ -62,7 +62,6 @@
 
     const params = new URLSearchParams(window.location.search);
     const neracaId = params.get('id');
-
     // Ambil detail neraca
     fetch(`/api/neraca/${neracaId}`)
       .then(res => res.json())
